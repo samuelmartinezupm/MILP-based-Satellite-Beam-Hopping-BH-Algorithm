@@ -1,0 +1,78 @@
+#python3.10
+
+import numpy as np
+import scipy.sparse as sp
+import gurobipy as gp
+from gurobipy import GRB
+import scipy.io
+
+def BH(total_range,total_constraints,val,row,col, b, obj, vtype, MIPGap):
+
+    # Create a new model
+    model = gp.Model("named_model")
+
+    val=np.array(val,dtype=float)
+    row=np.array(row,dtype=int)
+    col=np.array(col,dtype=int)
+    # Create variables
+    A = sp.csr_matrix((val, (row-1, col-1)), shape=(int(total_constraints), int(total_range)))
+    
+    vtype=[char for char in vtype]
+    #vtype=np.array(vtype,dtype=str)
+
+    x=model.addMVar(shape=int(total_range), vtype=vtype, name="x")
+    
+    obj=np.array(obj,dtype=float)
+
+    # Set objective
+    model.setObjective(obj @ x, gp.GRB.MINIMIZE)
+
+    b=np.array(b,dtype=float)
+
+    # Add all constraints
+    model.addConstr(A @ x <= b)
+
+    model.setParam('OutputFlag', 1)
+    model.setParam('MIPGap', MIPGap)
+
+    #model.computeIIS()
+
+    # Optimize model
+    model._vars = x
+    model._data = []
+    model._solutions = []
+    model.optimize(cb)
+
+    print(x.X)
+    print('Obj: %g' % model.objVal)
+
+    return x.X, model._data, model._solutions
+
+
+def cb(model, where):
+    #if where == gp.GRB.Callback.MIP:
+    #    cur_time = model.cbGet(gp.GRB.Callback.RUNTIME)
+    #    cur_obj = model.cbGet(gp.GRB.Callback.MIP_OBJBST)
+    #    cur_bd = model.cbGet(gp.GRB.Callback.MIP_OBJBND)
+    #    model._data.append([cur_time, cur_obj, cur_bd])
+
+    if where == GRB.Callback.MIPSOL:
+
+        model._solutions.append(model.cbGetSolution(model._vars))
+
+        cur_time = model.cbGet(gp.GRB.Callback.RUNTIME)
+        cur_obj = model.cbGet(gp.GRB.Callback.MIPSOL_OBJBST)
+        cur_bd = model.cbGet(gp.GRB.Callback.MIPSOL_OBJBND)
+        model._data.append([cur_time, cur_obj, cur_bd])
+       
+
+    #if where == gp.GRB.Callback.MIPNODE:
+    #    cur_time = model.cbGet(gp.GRB.Callback.RUNTIME)
+    #    cur_obj = model.cbGet(gp.GRB.Callback.MIPNODE_OBJBST)
+    #    cur_bd = model.cbGet(gp.GRB.Callback.MIPNODE_OBJBND)
+    #    model._data.append([cur_time, cur_obj, cur_bd])
+
+
+#mat = scipy.io.loadmat('BH_input_data.mat', squeeze_me=True)
+#result=BH(mat['total_range'],mat['total_constraints'],mat['val'],mat['row'],mat['col'], mat['b'], mat['obj'], mat['vtype'], mat['MIPGap'])
+result,data,solutions=BH(total_range,total_constraints,val,row,col, b, obj, vtype, MIPGap)
