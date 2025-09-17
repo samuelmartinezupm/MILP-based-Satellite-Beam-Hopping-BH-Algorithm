@@ -8,20 +8,20 @@ global PWD;
 scenario=1;
 run=1;
 
-freq=20e9; % Ka Band (DL)
-h_sat=1100; % Starklink [550km] ; OneWeb [1100km] 
+freq=20e9; % [Hz] Ka Band (DL)
+h_sat=1100; % {km] 
 el_min=25; % Minimum Elevation Angle [º] 
 Re=6378; % Earth Radius [km]
-frame=30; %100ms/frame = 10s
-frame_dur=0.1; %s
+frame=100; % 
+frame_dur=0.1; % [s] -> 100ms/frame * 100 frames = T_T=10s
 colours=1;
 beams=4;
-P_T=18; %W
-n_users=5; 
+P_T=18; % [W]
+n_users=50; 
 traffic_model='uniform'; %'linear' %'hotspot'
-B_T=250/2; %MHz per colour
-N=B_T/25; %Bandwidth bins
-rings=3; %Fixed grid 7 cellsP
+B_T=250/2; % [MHz/colour]
+N=B_T/25; % Frequency bins
+rings=10; % Fixed grid: EFC
 number_cells=0;
 for i=1:rings
     number_cells=number_cells+6*(i-1);
@@ -30,8 +30,7 @@ number_cells=number_cells+1;
     
 % SELECTRESOLUTION METHODOLOGY: FULL MILP vs TIME-SPLIT MILP
 method='time-split'; % 'full';
-
-
+beta=0.7;
 
 if strcmp(method,'full') % FULL MILP 
 
@@ -43,7 +42,7 @@ if strcmp(method,'full') % FULL MILP
     
     [UpC,Adj_c,Adj_u,D,P,R,c_scenario,theta,M,N,i_range, b_index, b_range, m_index, m_range, g_index, g_range, f_index, f_range, c_index, c_range, z_index, z_range, x_index, x_range,row,col,val,total_range,total_constraints,b, vtype,mip_start,g_aux,f_aux,c_aux]=BH(scenario,freq,h_sat,el_min,Re,frame,frame_dur,colours,beams,P_T,n_users,traffic_model,B_T,N,rings,number_cells);    
     
-    for betta=[0,1,0.7]
+    for betta=[0,1,beta]
         if betta==0 % NORMALIZATION: max_UC_betta_0
             MIPGap=0.4;
             normalization_UC=1;
@@ -113,7 +112,7 @@ elseif strcmp(method,'time-split') %TIME-SPLIT MILP
         ub(reshape(c_aux(:,t_idx:t_idx+9),1,[]))=(t_idx+9)+1;%2*(t_idx+9);%(t_idx+9)+1;
         t_range_boolean(reshape(c_aux(:,t_idx:t_idx+9),1,[]))=1;%(t_idx+9)+1;
 
-        for betta=[0,1,0.7]
+        for betta=[0,1,beta]
             if betta==0
                 MIPGap=0.40;
                 normalization_UC=1;
@@ -195,4 +194,5 @@ elseif strcmp(method,'time-split') %TIME-SPLIT MILP
 
 else 
     disp('Wrong MILP method selection.')
+
 end
