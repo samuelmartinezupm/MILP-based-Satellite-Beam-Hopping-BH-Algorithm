@@ -60,8 +60,7 @@ also stored as a dynamic attribute.
 		+ Time-split MILP:'[',num2str(scenario+1),'s_',num2str(run),'r_split]_',num2str(betta),'betta_',num2str(t_current+9),'frame_',num2str(n_users),'u','.mat' <- ("UC_perc_M","EC_perc_M","TTS_M","UC_perc_db","EC_perc_db","TTS_db","O1","O2","O3","OBJETIVO","normalization_UC","normalization_EC","normalization_time","c_scenario","B_T","b_slots","P_T","Adj_c","Adj_u","UpC","n_users","rings","beams","theta","colours","frame","frame_dur","freq","Ill_out","B_out","P_out","MS","GS","FS","CS","ZS","XS","PS","DS","data","solutions","betta")
 		
 		
-NOTE: Demand-based (DB) BH algorithm is available at: https://github.com/samuelmartinezupm/Demand-based-Satellite-Beam-Hopping-BH-Algorithm 
-NOTE: NSGA-II BH algorithm is available at: https://github.com/samuelmartinezupm/NSGA-II-based-Satellite-Beam-Hopping-BH-Algorithm
+NOTE: Demand-based (DB) BH algorithm is available at: https://github.com/samuelmartinezupm/Demand-based-Satellite-Beam-Hopping-BH-Algorithm and NSGA-II BH algorithm is available at: https://github.com/samuelmartinezupm/NSGA-II-based-Satellite-Beam-Hopping-BH-Algorithm
 
 ## Contact
 For questions, issues, or contributions, please contact Samuel M. Zamacola at samuel.martinez@upm.es.
